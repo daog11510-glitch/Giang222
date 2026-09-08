@@ -1,0 +1,214 @@
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import thư viện url_launcher
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0D1117),
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Trạng thái các công tắc
+  bool isAntiBand = false;
+  
+  bool isAimlock50 = false;
+  bool isBamDau50 = false;
+  bool isSens50 = false;
+  bool isToiUu50 = false;
+
+  bool isAimlock65 = false;
+  bool isBamDau65 = false;
+  bool isSens70 = false;
+  bool isToiUu60 = false;
+
+  // Hàm xử lý mở Game
+  Future<void> _openGame(BuildContext context) async {
+    // Ví dụ: Package Name của game Free Fire (com.dts.freefireth)
+    // Hoặc Free Fire MAX: com.dts.freefiremax
+    const String packageName = 'com.dts.freefireth'; 
+    
+    // Tạo URI dạng android-app://
+    final Uri gameUri = Uri.parse('android-app://$packageName');
+
+    try {
+      if (await canLaunchUrl(gameUri)) {
+        await launchUrl(gameUri, mode: LaunchMode.externalApplication);
+      } else {
+        // Nếu không mở được bằng package name, thử mở bằng Intent Scheme
+        final Uri intentUri = Uri.parse('intent://#Intent;package=$packageName;end');
+        if (await canLaunchUrl(intentUri)) {
+          await launchUrl(intentUri, mode: LaunchMode.externalApplication);
+        } else {
+          if (context.mounted) {
+            _showErrorDialog(context, 'Không thể mở game hoặc game chưa được cài đặt!');
+          }
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showErrorDialog(context, 'Lỗi khi mở game: $e');
+      }
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Nhẹ Tâm 𝙀𝙢𝙜𝙞𝙖𝙣𝙜🇻🇳',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF161B22),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Khối Anti Band
+            _buildSectionContainer(
+              borderColor: Colors.redAccent,
+              child: ListTile(
+                leading: const Icon(Icons.security, color: Colors.redAccent),
+                title: const Text('Anti Band 100%', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Kích hoạt Anti Band', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                trailing: Switch(
+                  value: isAntiBand,
+                  onChanged: (val) => setState(() => isAntiBand = val),
+                  activeColor: Colors.green,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Khối Basic
+            _buildSectionContainer(
+              borderColor: Colors.blueAccent,
+              child: Column(
+                children: [
+                  _buildSectionHeader('🔧 Basic (50%)', '🔒 Khóa', Colors.red),
+                  _buildSwitchTile('🎯 Aimlock 50%', isAimlock50, (val) => setState(() => isAimlock50 = val)),
+                  _buildSwitchTile('👁️ Bám Đầu 50%', isBamDau50, (val) => setState(() => isBamDau50 = val)),
+                  _buildSwitchTile('⚡ Sensivity Booster 50%', isSens50, (val) => setState(() => isSens50 = val)),
+                  _buildSwitchTile('🚀 Tối ưu máy 50%', isToiUu50, (val) => setState(() => isToiUu50 = val)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Khối Pro
+            _buildSectionContainer(
+              borderColor: Colors.purpleAccent,
+              child: Column(
+                children: [
+                  _buildSectionHeader('🚀 Pro (60-70%)', '✅ Mở', Colors.green),
+                  _buildSwitchTile('🎯 Aimlock 65%', isAimlock65, (val) => setState(() => isAimlock65 = val)),
+                  _buildSwitchTile('👁️ Bám Đầu 65%', isBamDau65, (val) => setState(() => isBamDau65 = val)),
+                  _buildSwitchTile('⚡ Sensivity Booster 70%', isSens70, (val) => setState(() => isSens70 = val)),
+                  _buildSwitchTile('🚀 Tối ưu máy 60%', isToiUu60, (val) => setState(() => isToiUu60 = val)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Nút Vào Game
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00A3FF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () => _openGame(context), // Gọi hàm mở game tại đây
+                child: const Text(
+                  '✅ Hoàn Tất / Vào Game',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            const Text(
+              'Made with Flutter',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionContainer({required Widget child, required Color borderColor}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF161B22),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor.withAlpha(128), width: 1.5),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildSectionHeader(String title, String status, Color statusColor) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.between,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: statusColor.withAlpha(51),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(status, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile(String title, bool value, ValueChanged<bool> onChanged) {
+    return ListTile(
+      title: Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeColor: Colors.blueAccent,
+      ),
+    );
+  }
+}
